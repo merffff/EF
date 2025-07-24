@@ -1,0 +1,16 @@
+{
+    "require": {
+        "doctrine/orm": "^3.5",
+        "doctrine/migrations": "^3.9",
+        "doctrine/data-fixtures": "^2.0",
+        "symfony/cache": "^7.3",
+        "doctrine/doctrine-migrations-bundle": "^3.4",
+        "doctrine/doctrine-fixtures-bundle": "^4.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/",
+            "DoctrineMigrations\\": "migrations/"
+        }
+    }
+}
