@@ -1,0 +1,5 @@
+{"message_id":"688656f1e6b85","body":"Process user payment","priority":10,"received_at":"2025-07-27 18:42:25","processed_at":"2025-07-27 18:42:26","duration":"1s","status":"completed"}
+{"message_id":"688656f2e6f19","body":"Send notification email","priority":5,"received_at":"2025-07-27 18:42:26","processed_at":"2025-07-27 18:42:27","duration":"1s","status":"completed"}
+{"message_id":"688656f3e70ea","body":"Generate monthly report","priority":3,"received_at":"2025-07-27 18:42:27","processed_at":"2025-07-27 18:42:29","duration":"2s","status":"completed"}
+{"message_id":"688656f4e728e","body":"Clean temporary files","priority":1,"received_at":"2025-07-27 18:42:28","processed_at":"2025-07-27 18:42:33","duration":"4s","status":"completed"}
+{"message_id":"688656f5e7466","body":"Backup user data","priority":8,"received_at":"2025-07-27 18:42:29","processed_at":"2025-07-27 18:42:34","duration":"1s","status":"completed"}

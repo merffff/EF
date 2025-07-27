@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # PHP-FPM контейнер для всех заданий
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: php_queues
+    volumes:
+      - ./1P:/var/www/1P
+      - ./2P:/var/www/2P
+      - ./3-4P:/var/www/3-4P
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    working_dir: /var/www
+    networks:
+      - queue_network
+    depends_on:
+      - redis
+      - rabbitmq
+
+
+  # Redis для заданий 1 и 2
+  redis:
+    image: redis:7-alpine
+    container_name: redis_server
+    ports:
+      - "6380:6379"  # Изменен внешний порт на 6380
+    volumes:
+      - redis_data:/data
+    networks:
+      - queue_network
+    command: redis-server --appendonly yes
+
+  # RabbitMQ для заданий 3 и 4
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq_server
+    ports:
+      - "5673:5672"   # Изменен внешний порт на 5673
+      - "15673:15672" # Изменен внешний порт Management UI на 15673
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - queue_network
+
+  # Queue Worker для Laravel (задание 1)
+  laravel_queue:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: laravel_queue_worker
+    volumes:
+      - ./1P:/var/www/1P
+    working_dir: /var/www/1P
+
+    command: sh -c "if [ -f artisan ]; then php artisan queue:work --verbose --tries=3 --timeout=60; else echo 'Laravel not found, waiting...'; sleep 3600; fi"
+    depends_on:
+      - php
+      - redis
+    networks:
+      - queue_network
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+  rabbitmq_data:
+
+networks:
+  queue_network:
+    driver: bridge

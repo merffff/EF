@@ -1,0 +1,28 @@
+3. Тестирование заданий
+Задание 1 (Laravel + Redis)
+
+curl "http://localhost:8080/dispatch-job?message=Test message from Docker"
+
+# Просмотр логов queue worker
+docker-compose logs -f laravel_queue
+
+
+Задание 2 (PHP + Predis)
+
+docker-compose exec -d php bash -c "cd /var/www/2P && php consumer.php"
+
+# Отправка задач
+docker-compose exec php bash -c "cd /var/www/2P && php producer.php"
+
+# Просмотр логов
+docker-compose exec php bash -c "cd /var/www/2P && tail -f queue_logs.txt"
+
+Задания 3-4 (RabbitMQ)
+
+docker-compose exec -d php bash -c "cd /var/www/3-4P && php rabbitmq_consumer.php"
+
+# Отправка сообщений
+docker-compose exec php bash -c "cd /var/www/3-4P && php rabbitmq_producer.php"
+
+# Просмотр логов
+docker-compose exec php bash -c "cd /var/www/3-4P && tail -f rabbitmq_logs.txt"

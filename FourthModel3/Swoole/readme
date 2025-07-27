@@ -1,0 +1,6 @@
+Задание 1 (HTTP сервер):
+docker-compose up swoole-http
+Проверка:
+curl http://localhost:9501
+Задание 2 (Таймер):
+docker-compose up swoole-timer
