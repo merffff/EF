@@ -1,0 +1,86 @@
+# GitHub Actions CI Workflow
+# Задание 1 и 2: Автоматическое тестирование при каждом push
+
+name: CI Tests
+
+# Триггеры для запуска workflow
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+# Определяем задания (jobs)
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    # Матрица для тестирования на разных версиях PHP
+    strategy:
+      matrix:
+        php-version: ['8.1', '8.2', '8.3']
+
+    steps:
+      # Шаг 1: Checkout кода из репозитория
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Шаг 2: Настройка PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, dom, filter, gd, json
+          tools: composer:v2
+          coverage: xdebug
+
+      # Шаг 3: Получение информации о версии PHP и Composer
+      - name: Check PHP Version
+        run: php -v
+
+      # Шаг 4: Валидация composer.json
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      # Шаг 5: Кэширование зависимостей Composer
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-version }}-
+
+      # Шаг 6: Установка зависимостей
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+      # Шаг 7: Проверка синтаксиса PHP
+      - name: Check PHP syntax
+        run: find src tests -name "*.php" -print0 | xargs -0 -n1 -P4 php -l
+
+      # Шаг 8: Запуск PHPUnit тестов
+      - name: Run PHPUnit tests
+        run: vendor/bin/phpunit --configuration phpunit.xml --coverage-text --coverage-clover=coverage.xml
+
+      # Шаг 9: Запуск Pest тестов (если есть)
+      - name: Run Pest tests
+        run: |
+          if [ -f "pest.php" ]; then
+            vendor/bin/pest
+          else
+            echo "Pest configuration not found, skipping Pest tests"
+          fi
+
+      # Шаг 10: Сохранение результатов тестов как артефакты
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-php-${{ matrix.php-version }}
+          path: |
+            test-results.xml
+            coverage.xml
+            coverage-html/

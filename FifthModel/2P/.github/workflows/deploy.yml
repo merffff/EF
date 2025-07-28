@@ -1,0 +1,141 @@
+# GitHub Actions Deploy Workflow
+# Задание 4: Автоматический деплой на сервер через FTP/SSH
+
+name: Deploy to Server
+
+# Триггер: запуск только после успешного завершения CI и только для main ветки
+on:
+  workflow_run:
+    workflows: ["CI Tests"]
+    types:
+      - completed
+    branches: [ main ]
+
+# Переменные окружения
+env:
+  DEPLOY_PATH: /var/www/html
+
+jobs:
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+
+    # Запускаем только если CI прошел успешно
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      # Шаг 1: Checkout кода
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Шаг 2: Настройка PHP для production build
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl
+          tools: composer:v2
+
+      # Шаг 3: Установка зависимостей для production
+      - name: Install production dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      # Шаг 4: Создание production build
+      - name: Create production build
+        run: |
+          # Создаем директорию для build
+          mkdir -p build
+          
+          # Копируем необходимые файлы (исключаем dev файлы)
+          rsync -av --exclude-from='.deployignore' . build/ || cp -r . build/
+          
+          # Создаем .deployignore если не существует
+          cat > .deployignore << EOF
+          .git/
+          .github/
+          tests/
+          node_modules/
+          .env
+          .env.example
+          phpunit.xml
+          pest.php
+          composer.lock
+          README.md
+          .gitignore
+          .deployignore
+          coverage/
+          coverage.xml
+          test-results.xml
+          EOF
+
+      # Шаг 5: Деплой через FTP
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        if: ${{ vars.DEPLOY_METHOD == 'ftp' || vars.DEPLOY_METHOD == '' }}
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT || 21 }}
+          protocol: ${{ secrets.FTP_PROTOCOL || 'ftp' }}
+          local-dir: ./build/
+          server-dir: ${{ secrets.FTP_SERVER_DIR || '/' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+
+      # Шаг 6: Деплой через SSH/SFTP
+      - name: Deploy via SSH
+        if: ${{ vars.DEPLOY_METHOD == 'ssh' }}
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            # Переходим в директорию проекта
+            cd ${{ secrets.SSH_DEPLOY_PATH || '/var/www/html' }}
+            
+            # Создаем backup текущей версии
+            if [ -d "current" ]; then
+              mv current backup-$(date +%Y%m%d_%H%M%S)
+              # Удаляем старые бэкапы (оставляем только 5 последних)
+              ls -t backup-* | tail -n +6 | xargs rm -rf
+            fi
+            
+            # Клонируем новую версию
+            git clone -b main ${{ github.server_url }}/${{ github.repository }}.git current
+            cd current
+            
+            # Устанавливаем зависимости
+            composer install --no-dev --optimize-autoloader --no-interaction
+            
+            # Копируем конфигурационные файлы если нужно
+            if [ -f "../.env" ]; then
+              cp ../.env .env
+            fi
+            
+            # Устанавливаем права доступа
+            chmod -R 755 storage
+            chmod -R 755 bootstrap/cache
+            
+            # Перезапускаем веб-сервер если нужно
+            # sudo systemctl reload nginx
+            # sudo systemctl reload php8.2-fpm
+
+
+      # Шаг 8: Уведомление о результате деплоя
+      - name: Deployment notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment completed successfully!"
+            echo "🚀 Application deployed to production server"
+          else
+            echo "❌ Deployment failed!"
+            echo "🔧 Please check the logs and fix the issues"
+          fi
+
