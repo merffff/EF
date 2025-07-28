@@ -4,6 +4,7 @@
     <option name="directories">
       <list>
         <option value="$PROJECT_DIR$/FourtModel4/1P/laravel/tests" />
+        <option value="$PROJECT_DIR$/FourtModel4/1P/tests" />
         <option value="$PROJECT_DIR$/ThirdModel/4PLaravel/tests" />
       </list>
     </option>

@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Пример тестов с использованием Pest
- * Альтернатива PHPUnit с более выразительным синтаксисом
- */
 
 use App\Calculator;
 
@@ -67,7 +63,6 @@ it('throws exception for negative square root', function () {
         ->toThrow(InvalidArgumentException::class, 'Cannot calculate square root of negative number');
 });
 
-// Пример группировки тестов
 describe('Calculator basic operations', function () {
     beforeEach(function () {
         $this->calculator = new Calculator();
@@ -82,7 +77,6 @@ describe('Calculator basic operations', function () {
     });
 });
 
-// Пример теста с данными (dataset)
 it('calculates addition correctly for various inputs', function (float $a, float $b, float $expected) {
     $calculator = new Calculator();
     expect($calculator->add($a, $b))->toBe($expected);
@@ -93,7 +87,6 @@ it('calculates addition correctly for various inputs', function (float $a, float
     [10.5, 5.5, 16.0],
 ]);
 
-// Пример теста производительности
 it('performs calculations quickly', function () {
     $calculator = new Calculator();
 
@@ -106,5 +99,5 @@ it('performs calculations quickly', function () {
     $end = microtime(true);
     $duration = $end - $start;
 
-    expect($duration)->toBeLessThan(0.1); // Должно выполниться за менее чем 0.1 секунды
+    expect($duration)->toBeLessThan(0.1);
 });

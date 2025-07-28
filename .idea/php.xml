@@ -372,8 +372,8 @@
   </component>
   <component name="PhpUnit">
     <phpunit_settings>
-      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/FourtModel4/1P/laravel/phpunit.xml" custom_loader_path="$PROJECT_DIR$/FourtModel4/1P/laravel/vendor/autoload.php" use_configuration_file="true" />
       <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/ThirdModel/4PLaravel/phpunit.xml" custom_loader_path="$PROJECT_DIR$/ThirdModel/4PLaravel/vendor/autoload.php" use_configuration_file="true" />
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/FourtModel4/1P/phpunit.xml" custom_loader_path="$PROJECT_DIR$/FourtModel4/1P/vendor/autoload.php" use_configuration_file="true" />
     </phpunit_settings>
   </component>
   <component name="PsalmOptionsConfiguration">

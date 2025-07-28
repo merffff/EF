@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8079:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=localhost
+      - DB_NAME=my_database
+      - DB_USER=app_user
+      - DB_PASSWORD=strong_password
+
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=strong_password
+      - MYSQL_DATABASE=my_database
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

@@ -1,9 +1,8 @@
-# GitHub Actions Deploy Workflow
-# Задание 4: Автоматический деплой на сервер через FTP/SSH
+
+# Задание 4
 
 name: Deploy to Server
 
-# Триггер: запуск только после успешного завершения CI и только для main ветки
 on:
   workflow_run:
     workflows: ["CI Tests"]
@@ -11,7 +10,6 @@ on:
       - completed
     branches: [ main ]
 
-# Переменные окружения
 env:
   DEPLOY_PATH: /var/www/html
 
@@ -20,15 +18,12 @@ jobs:
     name: Deploy Application
     runs-on: ubuntu-latest
 
-    # Запускаем только если CI прошел успешно
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
-      # Шаг 1: Checkout кода
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Шаг 2: Настройка PHP для production build
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -36,11 +31,9 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, intl
           tools: composer:v2
 
-      # Шаг 3: Установка зависимостей для production
       - name: Install production dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
-      # Шаг 4: Создание production build
       - name: Create production build
         run: |
           # Создаем директорию для build
@@ -68,7 +61,6 @@ jobs:
           test-results.xml
           EOF
 
-      # Шаг 5: Деплой через FTP
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         if: ${{ vars.DEPLOY_METHOD == 'ftp' || vars.DEPLOY_METHOD == '' }}
@@ -86,48 +78,6 @@ jobs:
             **/node_modules/**
             **/tests/**
 
-      # Шаг 6: Деплой через SSH/SFTP
-      - name: Deploy via SSH
-        if: ${{ vars.DEPLOY_METHOD == 'ssh' }}
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
-          script: |
-            # Переходим в директорию проекта
-            cd ${{ secrets.SSH_DEPLOY_PATH || '/var/www/html' }}
-            
-            # Создаем backup текущей версии
-            if [ -d "current" ]; then
-              mv current backup-$(date +%Y%m%d_%H%M%S)
-              # Удаляем старые бэкапы (оставляем только 5 последних)
-              ls -t backup-* | tail -n +6 | xargs rm -rf
-            fi
-            
-            # Клонируем новую версию
-            git clone -b main ${{ github.server_url }}/${{ github.repository }}.git current
-            cd current
-            
-            # Устанавливаем зависимости
-            composer install --no-dev --optimize-autoloader --no-interaction
-            
-            # Копируем конфигурационные файлы если нужно
-            if [ -f "../.env" ]; then
-              cp ../.env .env
-            fi
-            
-            # Устанавливаем права доступа
-            chmod -R 755 storage
-            chmod -R 755 bootstrap/cache
-            
-            # Перезапускаем веб-сервер если нужно
-            # sudo systemctl reload nginx
-            # sudo systemctl reload php8.2-fpm
-
-
-      # Шаг 8: Уведомление о результате деплоя
       - name: Deployment notification
         if: always()
         run: |

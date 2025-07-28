@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ac8eed65-ed9d-4b13-b843-dbdd9f9d33d9" name="Changes" comment="" />
+    <list default="true" id="ac8eed65-ed9d-4b13-b843-dbdd9f9d33d9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/EM.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/EM.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/phpunit.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/phpunit.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -27,6 +32,13 @@
   <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
     <pharConfigPath>$PROJECT_DIR$/FourthModelDI/composer.json</pharConfigPath>
     <execution />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="tsconfig.json" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -425,6 +437,10 @@
     </key>
   </component>
   <component name="RunManager" selected="PHPUnit.FourtModel4/1P/laravel">
+    <configuration name="FourtModel4/1P" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <TestRunner configuration_file="$PROJECT_DIR$/FourtModel4/1P/phpunit.xml" scope="XML" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
     <configuration name="FourtModel4/1P/laravel" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
       <TestRunner configuration_file="$PROJECT_DIR$/FourtModel4/1P/laravel/phpunit.xml" scope="XML" use_alternative_configuration_file="true" />
       <method v="2" />
@@ -455,7 +471,8 @@
       <workItem from="1753299336410" duration="14326000" />
       <workItem from="1753538968594" duration="23265000" />
       <workItem from="1753632922967" duration="7949000" />
-      <workItem from="1753642211468" duration="4717000" />
+      <workItem from="1753642211468" duration="7607000" />
+      <workItem from="1753708349623" duration="5254000" />
     </task>
     <servers />
   </component>

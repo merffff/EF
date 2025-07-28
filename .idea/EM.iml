@@ -15,6 +15,11 @@
       <sourceFolder url="file://$MODULE_DIR$/ThirdModel/4PLaravel/app" isTestSource="false" packagePrefix="App\" />
       <sourceFolder url="file://$MODULE_DIR$/ThirdModel/4PLaravel/database/factories" isTestSource="false" packagePrefix="Database\Factories\" />
       <sourceFolder url="file://$MODULE_DIR$/ThirdModel/4PLaravel/database/seeders" isTestSource="false" packagePrefix="Database\Seeders\" />
+      <sourceFolder url="file://$MODULE_DIR$/FourtModel4/1P/app" isTestSource="false" packagePrefix="App\" />
+      <sourceFolder url="file://$MODULE_DIR$/FourtModel4/1P/database/factories" isTestSource="false" packagePrefix="Database\Factories\" />
+      <sourceFolder url="file://$MODULE_DIR$/FourtModel4/1P/database/seeders" isTestSource="false" packagePrefix="Database\Seeders\" />
+      <sourceFolder url="file://$MODULE_DIR$/FourtModel4/1P/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/FourtModel4/1P/tests" isTestSource="true" packagePrefix="Tests\" />
       <sourceFolder url="file://$MODULE_DIR$/ThirdModel/4PLaravel/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/ThirdModel/4PLaravel/tests" isTestSource="true" packagePrefix="Tests\" />
       <excludeFolder url="file://$MODULE_DIR$/FourtModel4/1P/laravel/vendor/brick/math" />

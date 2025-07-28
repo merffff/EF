@@ -1,24 +1,18 @@
-# GitLab CI Configuration
-# Задание 3: Автоматическое тестирование в GitLab CI
 
-# Определяем стадии pipeline
+# Задание 3
+
 stages:
   - validate
   - test
   - quality
   - deploy
 
-# Глобальные переменные
 variables:
-  # Отключаем Git shallow clone для лучшей работы с историей
   GIT_DEPTH: 0
-  # Используем Docker-in-Docker
   DOCKER_DRIVER: overlay2
-  # Переменные для Composer
   COMPOSER_CACHE_DIR: /opt/cache/composer
   COMPOSER_MEMORY_LIMIT: -1
 
-# Кэширование для ускорения сборки
 cache:
   key: "$CI_COMMIT_REF_SLUG"
   paths:
@@ -26,23 +20,16 @@ cache:
     - node_modules/
     - /opt/cache/composer
 
-# Шаблон для PHP jobs
 .php_template: &php_template
   image: php:8.2-cli
   before_script:
-    # Устанавливаем системные зависимости
     - apt-get update -qq && apt-get install -y -qq git curl libzip-dev unzip
-    # Устанавливаем PHP расширения
     - docker-php-ext-install zip
-    # Устанавливаем Composer
     - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-    # Проверяем версии
     - php -v
     - composer --version
-    # Устанавливаем зависимости
     - composer install --prefer-dist --no-progress --no-interaction --no-dev --optimize-autoloader
 
-# Стадия 1: Валидация
 validate:composer:
   <<: *php_template
   stage: validate
@@ -54,7 +41,6 @@ validate:composer:
       - vendor/
     expire_in: 1 hour
 
-# Стадия 2: Тестирование на разных версиях PHP
 .test_template: &test_template
   <<: *php_template
   stage: test
@@ -66,11 +52,8 @@ validate:composer:
     - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
     - composer install --prefer-dist --no-progress --no-interaction
   script:
-    # Проверка синтаксиса PHP
     - find src tests -name "*.php" -print0 | xargs -0 -n1 -P4 php -l
-    # Запуск PHPUnit тестов
     - vendor/bin/phpunit --configuration phpunit.xml --coverage-text --coverage-xml=coverage
-    # Запуск Pest тестов (если есть)
     - |
       if [ -f "pest.php" ]; then
         vendor/bin/pest
@@ -89,31 +72,25 @@ validate:composer:
       - test-results.xml
     expire_in: 1 week
 
-# Тестирование на PHP 8.1
 test:php8.1:
   <<: *test_template
   image: php:8.1-cli
 
-# Тестирование на PHP 8.2
 test:php8.2:
   <<: *test_template
   image: php:8.2-cli
 
-# Тестирование на PHP 8.3
 test:php8.3:
   <<: *test_template
   image: php:8.3-cli
-  allow_failure: true  # Разрешаем падение для новой версии PHP
+  allow_failure: true
 
-# Стадия 3: Проверка качества кода
 code_quality:
   <<: *php_template
   stage: quality
   dependencies:
     - test:php8.2
   script:
-    # Здесь можно добавить инструменты для проверки качества кода
-    # Например: PHP_CodeSniffer, PHPStan, Psalm
     - echo "Running code quality checks..."
     - echo "✅ Code quality checks passed"
   artifacts:
@@ -122,7 +99,6 @@ code_quality:
     expire_in: 1 week
   allow_failure: true
 
-# Стадия 4: Деплой (только для main ветки)
 deploy:staging:
   <<: *php_template
   stage: deploy
@@ -132,24 +108,18 @@ deploy:staging:
   dependencies:
     - test:php8.2
   before_script:
-    # Устанавливаем SSH и rsync
     - apt-get update -qq && apt-get install -y -qq openssh-client rsync
-    # Настраиваем SSH ключ
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - ssh-keyscan $DEPLOY_HOST >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    # Устанавливаем зависимости для production
     - composer install --no-dev --optimize-autoloader --no-interaction
   script:
     - echo "Deploying to staging server..."
-    # Создаем архив для деплоя
     - tar -czf deploy.tar.gz --exclude='.git' --exclude='tests' --exclude='node_modules' --exclude='.env' .
-    # Копируем на сервер
     - scp deploy.tar.gz $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/
-    # Распаковываем и настраиваем на сервере
     - ssh $DEPLOY_USER@$DEPLOY_HOST "
       cd $DEPLOY_PATH &&
       tar -xzf deploy.tar.gz &&
@@ -184,7 +154,6 @@ deploy:production:
     - scp deploy.tar.gz $DEPLOY_USER@$DEPLOY_HOST:$PRODUCTION_DEPLOY_PATH/
     - ssh $DEPLOY_USER@$DEPLOY_HOST "
       cd $PRODUCTION_DEPLOY_PATH &&
-      # Создаем backup
       if [ -d 'current' ]; then
       mv current backup-$(date +%Y%m%d_%H%M%S)
       ls -t backup-* | tail -n +6 | xargs rm -rf

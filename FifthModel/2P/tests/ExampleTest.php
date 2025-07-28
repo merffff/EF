@@ -101,7 +101,6 @@ class ExampleTest extends TestCase
 
     public function testBasicEnvironment(): void
     {
-        // Тест для проверки, что тестовое окружение настроено правильно
         $this->assertTrue(defined('TEST_ENV'));
         $this->assertTrue(TEST_ENV);
     }
